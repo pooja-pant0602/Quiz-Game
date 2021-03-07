@@ -1,20 +1,24 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {Card} from 'antd';
 import EditSettings from './editSettings';
+import {Question} from '../../interfaces/templates';
 import '../style.css';
 
-function Settings() {
-    //const [questions, setQuestions] = useState("10");
+interface Props {
+    setQuestions: (newQuestions: Question[]) => void
+}
+
+function Settings({setQuestions}: Props) {
     const cardStyle = {
-        width: 500,
+        width: 700,
         borderRadius: 10,
-        marginTop: 20
+        marginTop: 20,
     }
 
     return (
         <div className="cardContainer">
         <Card title="Help us prepare your quiz!" hoverable style={cardStyle}>
-            <EditSettings />
+            <EditSettings setQuestions={setQuestions}/>
         </Card>
         </div>
     )

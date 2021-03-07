@@ -1,44 +1,75 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {Form, InputNumber, Select, Radio, Button} from 'antd';
+import {getCategories, generateQuiz} from '../../utils';
+import {useHistory} from "react-router-dom";
+import {Category, Question} from '../../interfaces/templates';
 const { Option } = Select;
 
-const generateQuiz = (values: any) => {
-    console.log(values);
+interface Props {
+    setQuestions: (newQuestions: Question[]) => void 
 }
 
-function EditSettings() {
+const startQuiz = async (values: any, categories: Category[], setQuestions: (val: Question[]) => void) => {
+    const response  = await generateQuiz(values, categories);
+    setQuestions(response.data.results);
+}
+
+const defaultValues = {
+    amount: 10,
+    category: "any",
+    difficulty: "easy",
+    type: "any"
+}
+
+
+function EditSettings({setQuestions}: Props) {
+    const history = useHistory();
+    const [categories, setCategories]: [Category[], (newCategories: Category[]) => void] = useState([{id: -1, name: ""}]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function populateCategories() {
+            const response = await getCategories();
+            setCategories(response.data.trivia_categories);
+            setLoading(false);
+        }
+
+        populateCategories();
+    });
 
     return (
-        <Form onFinish={generateQuiz}>
+        <Form onFinish={(values) => {
+            startQuiz(values, categories, setQuestions);
+            history.push('/quiz');
+        }
+        } initialValues={defaultValues}>
             <Form.Item label="Number of questions" name="amount">
-                <InputNumber size="large" min={1} defaultValue={10} style={{width: "100%"}}/>
+                <InputNumber size="large" min={1} max={50} style={{width: "100%"}}/>
             </Form.Item>
 
-            <Form.Item label="Categories" name="categories">
-                <Select mode="multiple" allowClear placeholder="Select one or more categories to test yourself on" size="large">
-                    <Option value="gk">General Knowledge</Option>
-                    <Option value="celebrities">Celebrities</Option>
-                    <Option value="animals">Animals</Option>
-                    <Option value="art">Art</Option>
-                    <Option value="politics">Politics</Option>
-                    <Option value="history">History</Option>
-                    <Option value="geo">Geography</Option>
-                    <Option value="sports">Sports</Option>
-                    <Option value="myth">Mythology</Option>
+            <Form.Item label="Categories" name="category">
+                <Select placeholder="Select a category to test yourself on" size="large" loading={loading}>
+                    <Option value="any">Any category</Option>
+                    {categories.map((category: {id:number, name: string}) => {
+                        return(
+                            <Option key={category.id} value={category.name}>{category.name}</Option>
+                        )
+                    })}
                 </Select>
             </Form.Item>
 
             <Form.Item label="Difficulty Level" name="difficulty">
             <Radio.Group defaultValue="easy" buttonStyle="solid" size="large">
             <Radio.Button value="easy">Easy</Radio.Button>
-            <Radio.Button value="med">Medium</Radio.Button>
-            <Radio.Button value="diff">Difficult</Radio.Button>
+            <Radio.Button value="medium">Medium</Radio.Button>
+            <Radio.Button value="hard">Hard</Radio.Button>
             </Radio.Group>
             </Form.Item>
 
             <Form.Item label="Type of questions" name="type">
-            <Radio.Group name="types" size="large" defaultValue="mcq">
-                <Radio value="mcq">Multiple Choice</Radio>
+            <Radio.Group name="types" size="large">
+                <Radio value="any">Any Type</Radio>
+                <Radio value="multiple">Multiple Choice</Radio>
                 <Radio value="boolean">True or False</Radio>
             </Radio.Group>
             </Form.Item>

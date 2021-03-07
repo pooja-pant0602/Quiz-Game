@@ -10,7 +10,6 @@ interface Props {
 
 export default function Welcome({name, setName}: Props) {
   const history = useHistory();
-  console.log(name.length);
     const cardStyle = {
         width: 300,
         borderRadius: 5,

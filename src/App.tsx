@@ -3,15 +3,26 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
+  Redirect
 } from "react-router-dom";
 import Heading from './components/Heading/heading';
 import Welcome from './components/Welcome/welcome';
 import Settings from './components/Settings/settings';
+import Quiz from './components/QuizGame/quiz';
+import {Question} from './interfaces/templates';
 import './App.css';
 
 function App() {
   const [name, setName] = useState("");
-  //const [topics, setTopics] = useState([]);
+  const [questions, setQuestions]: [Question[], (val: Question[])=> void] = useState([{
+    category: "nan",
+    type: "nan",
+    difficulty: "nan",
+    correct_answer: "nan",
+    incorrect_answers: ["nan"],
+    question: "nan"
+  }]);
+
   return (
     <div className="App">
       
@@ -27,9 +38,18 @@ function App() {
           <Route path="/settings">
             <div style={{marginTop: 50}}>
             <Heading message={`Hey, ${name}...`}/>
-              <Settings />
+              <Settings setQuestions={setQuestions}/>
               </div>
           </Route>
+
+          <Route path="/quiz">
+            <Quiz questions={questions}/>
+          </Route>
+
+          <Route path="/">
+            <Redirect to="/welcome"/>
+          </Route>
+          
         </Switch>
       </Router>
       
