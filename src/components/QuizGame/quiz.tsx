@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import {Question} from '../../interfaces/templates';
 import {Button, Card} from 'antd';
 import Option from './option';
+import GameOver from './gameOver';
 
 interface Props {
     questions: Question[];
@@ -13,11 +14,12 @@ const cardStyle = {
 }
 
 const nextQuestion = (index: number, setIndex: (val: number) => void, 
-                        setShowAns: (val: boolean) => void, num: number) => {
+                    setShowAns: (val: boolean) => void, num: number, setGameOver: (val: boolean) => void) => {
     setShowAns(false);
     if(index + 1 < num) {
         setIndex(index + 1);
     } else {
+        setGameOver(true);
         return;
     }
     
@@ -28,27 +30,34 @@ function Quiz({questions}: Props) {
     const [score, setScore] = useState(0);
     const [showAns, setShowAns] = useState(false);
     const [status, setStatus] = useState("");
+    const [gameOver, setGameOver] = useState(false);
     const no_of_questions = questions.length;
 
    if(questions[index].question !== "nan"){
-       return (
-           <div className="cardContainer" style={{marginTop: 80}}>
-            <div className="scoreContainer">
-                <p>{`Score: ${score}/${no_of_questions}`}</p>
+        if(gameOver) {
+            return (
+                <GameOver score={score}/>
+            ) 
+        } else {
+            return (
+                <div className="cardContainer" style={{marginTop: 80}}>
+             <div className="scoreContainer">
+                 <p>{`Score: ${score}/${no_of_questions}`}</p>
+             </div>
+            <Card hoverable title={questions[index].question} style={cardStyle}>
+                <Option correct_answer={questions[index].correct_answer} incorrect_answers={questions[index].incorrect_answers}
+                 score={score} setScore={setScore} showAns={showAns} setShowAns={setShowAns} setStatus={setStatus}/>
+ 
+                 <Button type="primary" style={{width: "100%", height: 50, marginTop: 40}} onClick={() => nextQuestion(index, setIndex, setShowAns, no_of_questions, setGameOver)}>Next Question</Button>
+            </Card>
+ 
+             {showAns ? <div className="status">
+                <p>{`That is ${status}!`}</p>
+            </div> : null}
             </div>
-           <Card hoverable title={questions[index].question} style={cardStyle}>
-               <Option correct_answer={questions[index].correct_answer} incorrect_answers={questions[index].incorrect_answers}
-                score={score} setScore={setScore} showAns={showAns} setShowAns={setShowAns} setStatus={setStatus}/>
-
-                <Button type="primary" style={{width: "100%", height: 50, marginTop: 40}} onClick={() => nextQuestion(index, setIndex, setShowAns, no_of_questions)}>Next Question</Button>
-           </Card>
-
-            {showAns ? <div className="status">
-               <p>{`That is ${status}!`}</p>
-           </div> : null}
-           </div>
-       )
-   } else {
+            )
+        }
+      } else {
        return null;
    }
 }

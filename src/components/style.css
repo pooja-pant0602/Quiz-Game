@@ -34,4 +34,12 @@
     color: #fff;
     font-weight: 700;
     font-size: 20px;
+    text-align: center;
+}
+
+.btnContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
 }
